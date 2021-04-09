@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">我的Xposed工具合集</string>
+    <string-array name="scope">
+        <item>com.xiaomi.market</item>
+        <item>com.xiaomi.shop</item>
+        <item>com.xunlei.downloadprovider</item>
+        <item>com.sina.weibo</item>
+        <item>com.tencent.mm</item>
+    </string-array>
+</resources>
