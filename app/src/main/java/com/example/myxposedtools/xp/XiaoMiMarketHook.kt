@@ -2,6 +2,7 @@ package com.example.myxposedtools.xp
 
 import android.app.Activity
 import android.app.Application
+import com.example.myxposedtools.prefs.XPrefsUtils
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
 
@@ -14,7 +15,7 @@ object XiaoMiMarketHook : AbsHook() {
 
     override val TAG = "tag_xiaomi_market"
 
-    override fun onAppStarted(application: Application, classLoader: ClassLoader) {
+    override fun onMainApplicationCreate(application: Application, classLoader: ClassLoader) {
         skipSplashAd()
     }
 
@@ -32,6 +33,9 @@ object XiaoMiMarketHook : AbsHook() {
                 object : XC_MethodReplacement() {
                     override fun replaceHookedMethod(param: MethodHookParam): Any {
                         log("skipSplashAd success")
+                        if (XPrefsUtils.isSkipAdToastEnabled()) {
+                            showToast(application, "已成功为您跳过启动页广告")
+                        }
                         return false
                     }
                 }

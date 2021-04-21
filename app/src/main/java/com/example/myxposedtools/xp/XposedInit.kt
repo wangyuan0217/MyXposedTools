@@ -9,10 +9,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
  * @author: wangpan
  * @emial: p.wang@aftership.com
  * @date: 2021/4/9
- *
- * Hook 的总入口
  */
-class HookEntry : IXposedHookLoadPackage {
+class XposedInit : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         when (lpparam.packageName) {
@@ -40,6 +38,21 @@ class HookEntry : IXposedHookLoadPackage {
             Constant.PKG_NAME_XUNLEI -> {
                 HookUtils.log("handleLoadPackage ${Constant.PKG_NAME_XUNLEI}")
                 XunLeiHook.handleLoadPackage(lpparam)
+            }
+            //12306
+            Constant.PKG_NAME_12306 -> {
+                HookUtils.log("handleLoadPackage ${Constant.PKG_NAME_12306}")
+                MobileTicketHook.handleLoadPackage(lpparam)
+            }
+            //米家
+            Constant.PKG_NAME_MIJIA -> {
+                HookUtils.log("handleLoadPackage ${Constant.PKG_NAME_MIJIA}")
+                MiJiaHook.handleLoadPackage(lpparam)
+            }
+            //MIUI系统广告
+            Constant.PKG_NAME_MIUI_SYSTEM_AD -> {
+                HookUtils.log("handleLoadPackage ${Constant.PKG_NAME_MIUI_SYSTEM_AD}")
+                MIUISystemAdHook.handleLoadPackage(lpparam)
             }
             else -> {
                 //CommonSkipSplashAd.handleLoadPackage(lpparam)

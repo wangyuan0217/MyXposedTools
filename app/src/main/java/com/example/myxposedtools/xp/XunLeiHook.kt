@@ -14,7 +14,7 @@ object XunLeiHook : AbsHook() {
 
     override val TAG = "tag_xunlei"
 
-    override fun onAppStarted(application: Application, classLoader: ClassLoader) {
+    override fun onMainApplicationCreate(application: Application, classLoader: ClassLoader) {
         removeQuitDialog()
     }
 

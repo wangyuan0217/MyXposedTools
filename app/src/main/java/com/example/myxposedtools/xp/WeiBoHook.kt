@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import com.example.myxposedtools.prefs.XPrefsUtils
 import com.example.myxposedtools.utils.HookUtils.getValueSafety
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -18,7 +19,7 @@ object WeiBoHook : AbsHook() {
 
     override val TAG = "tag_weibo"
 
-    override fun onAppStarted(application: Application, classLoader: ClassLoader) {
+    override fun onMainApplicationCreate(application: Application, classLoader: ClassLoader) {
         //移除开屏广告
         removeSplashAd()
         //移除列表页广告
@@ -76,6 +77,9 @@ object WeiBoHook : AbsHook() {
                     //阻止调用原方法
                     param.result = null
                     log("$method removeSplashAd success")
+                    if (XPrefsUtils.isSkipAdToastEnabled()) {
+                        showToast(application, "已成功为您去除启动页广告")
+                    }
                 } else {
                     log("$method removeSplashAd fail: params invalid")
                 }
@@ -98,24 +102,25 @@ object WeiBoHook : AbsHook() {
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val dataList = param.args[0] as? List<Any?> ?: emptyList()
-                        val loadMore = param.args[1] as Boolean
-                        log("removeListAdItems dataList: $dataList, $loadMore")
-                        if (dataList.isEmpty()) {
-                            log("removeListAdItems dataList is null")
-                            return
-                        }
+                        if (dataList.isEmpty()) return
                         val newDataList = dataList.toMutableList()
                         val iterator = newDataList.iterator()
+                        var hasAdItems = false
                         while (iterator.hasNext()) {
                             val item = iterator.next()
                             //移除广告item
                             if (item == null || isAdItem(item)) {
-                                log("removeListAdItems remove ad item success")
                                 iterator.remove()
+                                hasAdItems = true
                             }
                         }
                         param.args[0] = newDataList
-                        log("removeListAdItems success")
+                        if (hasAdItems) {
+                            log("removeListAdItems success")
+                            if (XPrefsUtils.isSkipAdToastEnabled()) {
+                                showToast(application, "已成功为您去除列表页广告")
+                            }
+                        }
                     }
 
                     /**
@@ -168,9 +173,7 @@ object WeiBoHook : AbsHook() {
         }
     }
 
-    private class RemoveVideoAdMethodHook(
-        private val method: String
-    ) : XC_MethodHook() {
+    private class RemoveVideoAdMethodHook(private val method: String) : XC_MethodHook() {
 
         private val managerInstance: Any
         private val getStatusMethod: Method
@@ -186,19 +189,24 @@ object WeiBoHook : AbsHook() {
 
         override fun beforeHookedMethod(param: MethodHookParam) {
             val dataList = param.args[0] as? List<Any?> ?: emptyList()
-            log("removeVideoListAdItems $method dataList: $dataList")
             if (dataList.isEmpty()) return
             val newDataList = dataList.toMutableList()
             val iterator = newDataList.iterator()
+            var hasAdItems = false
             while (iterator.hasNext()) {
                 val blogId = iterator.next() as? String ?: ""
                 if (isVideoAdItem(blogId)) {
                     iterator.remove()
-                    log("removeVideoListAdItems $method remove ad item success")
+                    hasAdItems = true
                 }
             }
             param.args[0] = newDataList
-            log("removeVideoListAdItems $method success")
+            if (hasAdItems) {
+                log("removeVideoListAdItems $method success")
+                if (XPrefsUtils.isSkipAdToastEnabled()) {
+                    showToast(application, "已成功为您去除列表页广告")
+                }
+            }
         }
 
         /**

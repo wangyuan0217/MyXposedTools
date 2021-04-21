@@ -3,6 +3,7 @@ package com.example.myxposedtools.xp
 import android.app.Application
 import android.view.View
 import android.view.ViewGroup
+import com.example.myxposedtools.prefs.XPrefsUtils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 
@@ -15,7 +16,7 @@ object WeiXinHook : AbsHook() {
 
     override val TAG = "tag_weixin"
 
-    override fun onAppStarted(application: Application, classLoader: ClassLoader) {
+    override fun onMainApplicationCreate(application: Application, classLoader: ClassLoader) {
         removePYQAdItems()
     }
 
@@ -33,9 +34,12 @@ object WeiXinHook : AbsHook() {
                         val position = param.args[0] as Int
                         val parent = param.args[2] as ViewGroup
                         if (isAdItems(param.thisObject, position)) {
-                            log("removePYQAdItems success: $position")
                             param.result = View(parent.context).apply {
                                 layoutParams = ViewGroup.LayoutParams(0, 0)
+                            }
+                            log("removePYQAdItems success: $position")
+                            if (XPrefsUtils.isSkipAdToastEnabled()) {
+                                showToast(application, "已成功为您去除一个朋友圈广告")
                             }
                         }
                     }

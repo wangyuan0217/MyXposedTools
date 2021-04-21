@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.pm.ShortcutManager
 import android.os.Build
+import com.example.myxposedtools.prefs.XPrefsUtils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
@@ -17,7 +18,7 @@ object XiaoMiShopHook : AbsHook() {
 
     override val TAG = "tag_xiaomi_shop"
 
-    override fun onAppStarted(application: Application, classLoader: ClassLoader) {
+    override fun onMainApplicationCreate(application: Application, classLoader: ClassLoader) {
         removeShortcut()
         skipSplashAd()
     }
@@ -67,6 +68,9 @@ object XiaoMiShopHook : AbsHook() {
                     autoJumpMethod.invoke(null, activity, null, 1)
                     param.result = null
                     log("skipSplashAd success")
+                    if (XPrefsUtils.isSkipAdToastEnabled()) {
+                        showToast(application, "已成功为您跳过启动页广告")
+                    }
                 }
             })
         } catch (t: Throwable) {

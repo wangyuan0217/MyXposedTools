@@ -2,6 +2,8 @@ package com.example.myxposedtools.xp
 
 import android.app.Application
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import com.example.myxposedtools.utils.HookUtils
 import de.robv.android.xposed.XC_MethodHook
@@ -18,41 +20,47 @@ abstract class AbsHook {
     lateinit var application: Application
     lateinit var classLoader: ClassLoader
 
+    lateinit var handler: Handler
+
     open val TAG: String = "tag_hook"
 
     fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         onHandleLoadPackage(lpparam)
-        callOnAppStart(lpparam)
+        callApplicationCreate(lpparam)
     }
 
-    private fun callOnAppStart(lpparam: XC_LoadPackage.LoadPackageParam) {
-        if (lpparam.processName != lpparam.packageName) return
+    private fun callApplicationCreate(lpparam: XC_LoadPackage.LoadPackageParam) {
+        val packageName = lpparam.packageName
         try {
             XposedHelpers.findAndHookMethod(
                 Application::class.java, "onCreate", object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         application = param.thisObject as Application
-                        classLoader = application.classLoader
-                        log("onAppStart: ${lpparam.packageName}")
-                        onAppStarted(application, classLoader)
+                        classLoader = application.classLoader!!
+                        handler = Handler(Looper.getMainLooper())
+                        onApplicationCreate(application, classLoader)
+                        if (HookUtils.getProcessName(application) == packageName) {
+                            log("onMainApplicationCreate: $packageName")
+                            onMainApplicationCreate(application, classLoader)
+                        }
                     }
                 }
             )
         } catch (t: Throwable) {
-            log("onAppStart fail: ${lpparam.packageName}")
+            log("callApplicationCreate fail: $packageName")
             log(t.getStackInfo())
         }
-    }
-
-    open fun onAppStarted(application: Application, classLoader: ClassLoader) {
-
     }
 
     open fun onHandleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
 
     }
 
-    open fun onAppStart(lpparam: XC_LoadPackage.LoadPackageParam) {
+    open fun onApplicationCreate(application: Application, classLoader: ClassLoader) {
+
+    }
+
+    open fun onMainApplicationCreate(application: Application, classLoader: ClassLoader) {
 
     }
 
@@ -70,8 +78,14 @@ abstract class AbsHook {
         }
     }
 
+    fun runOnUIThread(runnable: Runnable) {
+        handler.post(runnable)
+    }
+
     fun showToast(context: Context, msg: String, duration: Int = Toast.LENGTH_SHORT) {
-        Toast.makeText(context, msg, duration).show()
+        handler.post {
+            Toast.makeText(context, msg, duration).show()
+        }
     }
 
 }

@@ -6,5 +6,8 @@
         <item>com.xunlei.downloadprovider</item>
         <item>com.sina.weibo</item>
         <item>com.tencent.mm</item>
+        <item>com.MobileTicket</item>
+        <item>com.xiaomi.smarthome</item>
+        <item>com.miui.systemAdSolution</item>
     </string-array>
 </resources>

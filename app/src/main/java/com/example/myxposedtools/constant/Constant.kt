@@ -16,4 +16,10 @@ object Constant {
     const val PKG_NAME_WEI_BO = "com.sina.weibo"
 
     const val PKG_NAME_WEI_XIN = "com.tencent.mm"
+
+    const val PKG_NAME_12306 = "com.MobileTicket"
+
+    const val PKG_NAME_MIJIA = "com.xiaomi.smarthome"
+
+    const val PKG_NAME_MIUI_SYSTEM_AD = "com.miui.systemAdSolution"
 }
