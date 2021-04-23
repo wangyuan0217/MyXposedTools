@@ -2,7 +2,6 @@ package com.example.myxposedtools.xp
 
 import android.app.Application
 import com.example.myxposedtools.prefs.XPrefsUtils
-import com.example.myxposedtools.utils.HookUtils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -21,8 +20,8 @@ object MIUISystemAdHook : AbsHook() {
             XposedHelpers.findAndHookMethod(Application::class.java, "onCreate", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val application = param.thisObject as Application
-                    log("systemAdService start: ${HookUtils.getProcessName(application)}")
-                    removeSplashAd()
+                    val classLoader = application.classLoader!!
+                    removeSplashAd(application, classLoader)
                 }
             })
         } catch (t: Throwable) {
@@ -33,7 +32,7 @@ object MIUISystemAdHook : AbsHook() {
     /**
      * 移除闪屏页广告
      */
-    private fun removeSplashAd() {
+    private fun removeSplashAd(application: Application, classLoader: ClassLoader) {
         try {
             val binderClass = XposedHelpers.findClassIfExists(
                 "com.miui.systemAdSolution.splashAd.SystemSplashAdService\$2", classLoader

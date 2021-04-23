@@ -34,7 +34,7 @@ abstract class AbsHook {
         try {
             XposedHelpers.findAndHookMethod(
                 Application::class.java, "onCreate", object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
                         application = param.thisObject as Application
                         classLoader = application.classLoader!!
                         handler = Handler(Looper.getMainLooper())
