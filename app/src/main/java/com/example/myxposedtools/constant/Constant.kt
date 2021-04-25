@@ -22,4 +22,6 @@ object Constant {
     const val PKG_NAME_MIJIA = "com.xiaomi.smarthome"
 
     const val PKG_NAME_MIUI_SYSTEM_AD = "com.miui.systemAdSolution"
+
+    const val PKG_NAME_VIDEO = "com.miui.video"
 }

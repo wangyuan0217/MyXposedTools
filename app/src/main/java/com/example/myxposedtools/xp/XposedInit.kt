@@ -52,7 +52,12 @@ class XposedInit : IXposedHookLoadPackage {
             //MIUI系统广告
             Constant.PKG_NAME_MIUI_SYSTEM_AD -> {
                 HookUtils.log("handleLoadPackage ${Constant.PKG_NAME_MIUI_SYSTEM_AD}")
-                MIUISystemAdHook.handleLoadPackage(lpparam)
+                MIUIMsaHook.handleLoadPackage(lpparam)
+            }
+            //小米视频
+            Constant.PKG_NAME_VIDEO -> {
+                HookUtils.log("handleLoadPackage ${Constant.PKG_NAME_VIDEO}")
+                VideoHook.handleLoadPackage(lpparam)
             }
             else -> {
                 //CommonSkipSplashAd.handleLoadPackage(lpparam)
